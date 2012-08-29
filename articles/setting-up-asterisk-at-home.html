@@ -1,0 +1,47 @@
+<h2>Setting up Asterisk at home</h2>
+<p>I have been successfully using a home/office phone system that runs over SIP for a while now, but I found the documentation and tutorials on the web complicated and non-explanatory. A lot of the work was trial and error while I worked out what I was supposed to do, and hence I'm going to write my findings here.</p>
+<p>I was keen to set up a PBX running on my own machine. There are VoIP providers out there who will allow me to connect my phones to them, but I wanted the system to work the way I want it to work. And I wanted to be able to make calls "peer-to-peer". That said, I didn't want a machine that was going to noisily whir away in my office, consuming vast amounts of electricity and generating large amounts of heat.</p>
+<p>My solution was a Buffalo Linkstation, which a handful of geniuses at linkstation wiki have managed to hack into a fully-fledged Debian box. I will note that carrying out the procedure as laid out on that site could render the box useless - and void of warranty - but I followed it without a problem.</p>
+<p>With Debian as the basis for the system, installing Asterisk was pretty much as easy as it gets. First you need to establish communication with the Linkstation. The only way of doing this is via SSH using the username root and the password lspro. If you don't currently have an SSH client, I would recommend PuTTY to those using Windows.</p>
+<p>By default the Linkstation looks for a DHCP server to get its network address, so if you have a DHCP server you will need to find out what address was served to the machine before you can make a secure connection. If you don't have a DHCP server, the Linkstation will give itself the IP address 192.168.11.150 and you will need to configure your computer to be on the same subnet.</p>
+<p>When logged in, I changed the root password:</p>
+<code>passwd</code>
+<p>and created a new user:</p>
+<code>newuser</code>
+<p>This secures the machine from intrusion and gives you a user name from which to work from on a day-to-day basis, rather than work as root - which gives the potential for causing disaster!</p>
+<p>Installing Asterisk involved the following:</p>
+<code>apt-get update<br/>apt-get upgrade<br/>apt-get install asterisk</code>
+<p>Job done!</p>
+<p>There are two files that are key to configuring Asterisk - sip.conf and extensions.conf. These can be found in /etc/asterisk/. The former contains the settings that govern how Asterisk behaves as a server, as well as the connections it makes to other peers and clients. The latter contains the "dialplan", or put another way, the procedure that is followed when a call is made to a particular extension.</p>
+<p>I am going to explain how I set my system up. My system will be different to yours and hence yours will require subtle (or not-so-subtle) changes, but I'll try to explain why I do what I do. My system currently consists of the following:</p>
+<ul>
+ <li>A sipgate.co.uk account for "home" use, using a local prefix,</li>
+ <li>A sipgate.co.uk account for "work" use, using a non-geographical prefix,</li>
+ <li>Routing of URI based SIP addresses, nospam@copsey.net, for example, can be routed to my phones,</li>
+ <li>Dial 9 to get an outside line using the "work" sipgate.co.uk account,</li>
+ <li>All other calls use the "home" sipgate.co.uk account,</li>
+ <li>Internal dialling between phones,</li>
+ <li>Extensions to call other URI based SIP addresses (to cut out sipgate as a middle man).</li>
+</ul>
+<p>The reason I have to set extensions up to dial URI SIP addresses is because I don't have any phones that I can type URIs into! I'm sure I will get one some day, but for now if I want to dial someone@example.com directly I set up an extension, and tell Asterisk to translate the extension into a SIP URI.</p>
+<h2>Some ground work</h2>
+<p>For those that don't know, all calls that operate over SIP do so using URIs. I have accounts with sipgate that allow me to associate regular phone numbers numbers with my SIP accounts, but all sipgate do is take the regular call and transform it into a SIP call destined for my Asterisk server. The same is true in the opposite direction. If I want to dial 01234 123456 what happens is a SIP calls goes out to 01234123456@sipgate.co.uk. Sipgate realise that this needs connecting to the public phone network, and they oblige - charging me for the privilege.</p>
+<h2>Configuration</h2>
+<p>The process I needed to follow to set up my Asterisk server to work with sipgate was as follows:</p>
+<ol>
+ <li>Register my Asterisk server with sipgate, so they know how to contact me.</li>
+ <li>Set my Asterisk server up with my sipgate account settings.</li>
+ <li>Set up extensions so that incoming and outgoing calls get routed sensibly.</li>
+</ol>
+<p>That might sound obvious, but decyphering the example sip.conf file and using existing online resources it took me a week to get it working!</p>
+<h2>sip.conf</h2>
+<p>Asterisk configuration files follow the format:</p>
+<code>[context]<br/>variable=value<br/>[next context]<br/>variable=value</code>
+<p>What this means becomes more obvious as you set the server up, so that's what I'll do. All you need to know is that the server's base configuration resides in the [general] context.</p>
+<p>The beginning of my sip.conf file looks as follows:</p>
+<code>[general]<br/>context=default<br/>bindport=5060<br/>bindaddr=0.0.0.0<br/>register => username:password@sipgate.co.uk/sipgate-office<br/>register => username:password@sipgate.co.uk/sipgate-home</code>
+<p>Here, what I am saying, is that by default I want incoming calls to be handled using the "default" context (about which more later), my server uses port 5060 (the SIP default), my Asterisk server should use all available network interfaces, and that the two accounts specified should be registered with the sipgate server. More specifically, I am telling sipgate that when a call is made to either of my two numbers, the resulting SIP call should be directed to this server. A call made to my work number should be sent to the "sipgate-office" extension, and a call made to my home number should be sent to the "sipgate-home" extension.</p>
+<p>Now we have to teach the Asterisk server how to handle outbound calls. Below the [general] context I have two further contexts that look like the following:</p>
+<code>[sipgate-office]<br/>type=peer<br/>insecure=very<br/>host=sipgate.co.uk</code>
+<p>Here I am teaching Asterisk that I have other servers available to me. They are "peers" which means that they are other servers (possibly Asterisk servers), the connection does not use authentication (it is purely based on my IP address - which the sipgate server learnt why I registered above), and the hostname of this server is sipgate.co.uk.</p>
+<p>To be continued...</p>

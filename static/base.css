@@ -1,0 +1,56 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Arial", "Helvetica", sans-serif;
+    font-size: 1.00em; /* 16px */
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: none;
+    line-height: 1.60em; /* 26px */
+    text-align: left;
+    border: 0;
+}
+
+p, blockquote, ul, ol, dl { margin: 0.80em 0; }
+
+table { border-spacing: 0; }
+
+.xsmall { font-size: 0.55em; }
+.small { font-size: 0.70em; }
+.medium { font-size: 0.75em; }
+.large 	{ font-size: 1.875em; }
+.xlarge { font-size: 1.125em; }
+
+.thin { line-height: 1.30em; }
+.thick { line-height: 1.80em; }
+
+.hide 	{ display: none; }
+.inline { display: inline; }
+.block 	{ display: block; }
+.nfloat { float: none; }
+.left 	{ float: left; }
+.right 	{ float: right; }
+.clear 	{ clear: both; }
+.lclear { clear: left; }
+.rclear { clear: right; }
+.lowercase { text-transform: lowercase; }
+.uppercase { text-transform: uppercase; }
+.capitalize { text-transform: capitalize; }
+
+.navigation { margin: 0; }
+.navigation li { display: inline; }
+
+code, pre, .monospace { font-family: "Courier New", monospace; }
+.georgia { font-family: "Georgia"; }
+.trebuchet { font-family: "Trebuchet MS"; }
+
+form fieldset { border: 0; }
+form div.input { clear: left; }
+form label { display: block; float: left; width: 100px; }
+form input.default, form textarea { float: left; padding: 2px; border: 1px solid #aaa; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; }
+form .xs { width: 20px; }
+form .s { width: 50px; }
+form .m { width: 100px; }
+form .l { width: 150px; }
+form .xl { width: 200px; }
+form button { color: #000; background-color: #eee; text-align: center; border: 1px solid #ddd; border-right: 1px solid #aaa; border-bottom: 1px solid #aaa; cursor: pointer; }
